@@ -162,6 +162,43 @@ public class SbaCourseApi {
 		}
 	}
 
+	@RequestMapping(value = "/listdisablecourse", method = RequestMethod.GET, produces = "application/json")
+	@ApiOperation(value = "SBA Mentor Disabled Course List")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 401, message = "No Authroization"), @ApiResponse(code = 403, message = "No Permission"),
+			@ApiResponse(code = 404, message = "No Mentors Found"),
+			@ApiResponse(code = 500, message = "Internal Error") })
+	public ResponseEntity<RspModel> finMentorDisableCourses(
+			@ApiParam(name = "mentorname", required = true) @RequestParam String mentorname) {
+
+		try {
+
+			List<CourseMentor> coursementors = courseMapper.findMentprDisableCourse(mentorname);
+
+			if (coursementors.size() > 0) {
+
+				RspModel rsp = new RspModel();
+				rsp.setCode(200);
+				rsp.setMessage("Found Courses");
+				rsp.setData(coursementors);
+				return new ResponseEntity<RspModel>(rsp, HttpStatus.OK);
+
+			} else {
+				RspModel rsp = new RspModel();
+				rsp.setCode(404);
+				rsp.setMessage("No Found Courses");
+				return new ResponseEntity<RspModel>(rsp, HttpStatus.OK);
+			}
+
+		} catch (Exception ex) {
+			RspModel rsp = new RspModel();
+			rsp.setCode(500);
+			rsp.setMessage(ex.getMessage());
+			return new ResponseEntity<RspModel>(rsp, HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+	}
+
 	@RequestMapping(value = "/listbatchcourses", method = RequestMethod.GET, produces = "application/json")
 	@ApiOperation(value = "SBA Mentor Course List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok"), @ApiResponse(code = 400, message = "Bad Request"),
@@ -253,6 +290,58 @@ public class SbaCourseApi {
 			RspModel rsp = new RspModel();
 			rsp.setCode(200);
 			rsp.setMessage("Update Course");
+			return new ResponseEntity<RspModel>(rsp, HttpStatus.OK);
+
+		} catch (Exception ex) {
+			RspModel rsp = new RspModel();
+			rsp.setCode(500);
+			rsp.setMessage(ex.getMessage());
+			return new ResponseEntity<RspModel>(rsp, HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+	}
+
+	@RequestMapping(value = "/disablecourses", method = RequestMethod.PUT, produces = "application/json")
+	@ApiOperation(value = "SBA course - Disable all your Courses whose name matches with your given String")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 401, message = "No Authroization"), @ApiResponse(code = 403, message = "No Permission"),
+			@ApiResponse(code = 404, message = "No Courses Found"),
+			@ApiResponse(code = 500, message = "Internal Error") })
+	public ResponseEntity<RspModel> disableCourse(@ApiParam(name = "body", required = true) @RequestBody Course course) {
+		try {
+
+		    System.out.println("carylog name:" + course.getName());
+			System.out.println("carylog name:" + course.getMentorName());
+			courseMapper.updateCourseAsDisable("%"+course.getName()+"%", course.getMentorName());
+
+			RspModel rsp = new RspModel();
+			rsp.setCode(200);
+			rsp.setMessage("Courses Disabled");
+			return new ResponseEntity<RspModel>(rsp, HttpStatus.OK);
+
+		} catch (Exception ex) {
+			RspModel rsp = new RspModel();
+			rsp.setCode(500);
+			rsp.setMessage(ex.getMessage());
+			return new ResponseEntity<RspModel>(rsp, HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+	}
+
+	@RequestMapping(value = "/enablecourses", method = RequestMethod.PUT, produces = "application/json")
+	@ApiOperation(value = "SBA course - Enable all your disabled Courses whose name matches with your given String")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 401, message = "No Authroization"), @ApiResponse(code = 403, message = "No Permission"),
+			@ApiResponse(code = 404, message = "No Courses Found"),
+			@ApiResponse(code = 500, message = "Internal Error") })
+	public ResponseEntity<RspModel> enableCourse(@ApiParam(name = "body", required = true) @RequestBody Course course) {
+		try {
+
+			courseMapper.updateCourseAsAvailable("%"+course.getName()+"%",  course.getMentorName());
+
+			RspModel rsp = new RspModel();
+			rsp.setCode(200);
+			rsp.setMessage("Courses Disabled");
 			return new ResponseEntity<RspModel>(rsp, HttpStatus.OK);
 
 		} catch (Exception ex) {

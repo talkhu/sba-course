@@ -24,9 +24,12 @@ public interface CourseMapper {
 	@Select("SELECT id,name,skill,startDate,endDate,status, userName,description, DATEDIFF(endDate, startDate) as duration, schedule FROM course.course where mentorName=#{mentorname} and progress = #{progress}")
 	List<CourseMentor> findMentprCourse(@Param("mentorname") String mentorname, @Param("progress") Integer progress);
 	
-	@Select("SELECT id,name,skill,startDate,endDate,status, userName,description, DATEDIFF(endDate, startDate) as duration, schedule FROM course.course where mentorName=#{mentorname} and progress is null")
+	@Select("SELECT id,name,skill,startDate,endDate,status, userName,description, DATEDIFF(endDate, startDate) as duration, schedule FROM course.course where mentorName=#{mentorname} and status = 'available' and progress is null")
 	List<CourseMentor> findMentprAvailableCourse(@Param("mentorname") String mentorname);
-	
+
+	@Select("SELECT id,name,skill,startDate,endDate,status, userName,description, DATEDIFF(endDate, startDate) as duration, schedule FROM course.course where mentorName=#{mentorname} and status = 'disable' and progress is null")
+	List<CourseMentor> findMentprDisableCourse(@Param("mentorname") String mentorname);
+
 	@Update("update course.course set status = #{status},schedule=#{schedule} where id = #{courseid}")
 	void updateCourseStatus(@Param("courseid") Integer courseid, @Param("status") String status, @Param("schedule") Integer schedule);
 	
@@ -38,4 +41,10 @@ public interface CourseMapper {
 	
 	@Select("select id,endDate FROM course.course where progress is null and status='available'")
 	List<BatchCourse> batchCourse();
+
+	@Update("update course.course set status = 'disable' where name like #{name} and status = 'available' and mentorName=#{mentorname} and progress is null")
+	void updateCourseAsDisable(@Param("name") String name,@Param("mentorname") String mentorname);
+
+	@Update("update course.course set status = 'available' where name like #{name} and status = 'disable' and mentorName=#{mentorname} and progress is null")
+	void updateCourseAsAvailable(@Param("name") String name,@Param("mentorname") String mentorname);
 }
